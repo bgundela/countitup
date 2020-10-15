@@ -19,7 +19,7 @@ struct PersonView: View {
                 .fontWeight(.black)
                 .foregroundColor(colorScheme == .dark ? .white : .black)
             
-            Image("profile")
+            Image(uiImage: UIImage(data: person.image)!)
                 .renderingMode(.original)
                 .resizable()
                 .frame(width: 70, height: 70)

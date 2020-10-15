@@ -6,59 +6,47 @@
 //
 
 import Foundation
-import PhotosUI
+import Combine
 import SwiftUI
 
+
 struct ImagePicker: UIViewControllerRepresentable {
-    func makeCoordinator() -> Coordinator {
-        return ImagePicker.Coordinator(parent1: self)
+    @Binding var show: Bool
+    @Binding var image: Data
+    
+    func makeCoordinator() -> ImagePicker.Coordinator {
+        return ImagePicker.Coordinator(child1: self)
     }
     
-
-    @Binding var image: UIImage
-    @Binding var show: Bool
-
-    func makeUIViewController(context: Context) -> PHPickerViewController {
-        var config = PHPickerConfiguration()
-        config.filter = .images
-        config.selectionLimit = 1
-        let picker = PHPickerViewController(configuration: config)
+    func makeUIViewController(context: UIViewControllerRepresentableContext<ImagePicker>) -> UIImagePickerController {
+        let picker = UIImagePickerController()
+        picker.sourceType = .photoLibrary
         picker.delegate = context.coordinator
         return picker
     }
-
-    func updateUIViewController(_ uiViewController: PHPickerViewController, context: Context) {
-
+    
+    func updateUIViewController(_ uiViewController: UIImagePickerController, context: UIViewControllerRepresentableContext<ImagePicker>) {
+        
     }
-
-    class Coordinator: NSObject, PHPickerViewControllerDelegate {
-        var parent: ImagePicker
-
-        init(parent1: ImagePicker) {
-            parent = parent1
+    
+    class Coordinator: NSObject, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+        var child: ImagePicker
+        
+        init(child1: ImagePicker) {
+            child = child1
         }
-
-        func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
+        
+        func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+            self.child.show.toggle()
+        }
+        
+        func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+            let image = info[.originalImage] as! UIImage
             
-            parent.show.toggle()
+            let data = image.jpegData(compressionQuality: 0.45)
             
-            for img in results {
-                if img.itemProvider.canLoadObject(ofClass: UIImage.self) {
-
-                    img.itemProvider.loadObject(ofClass: UIImage.self) { (image, err) in
-                        guard let image1 = image else {
-                            print(err)
-                            return
-                        }
-                        
-                        self.parent.image = image as! UIImage
-                    }
-                    
-                } else {
-                    print("Image cannot be loaded.")
-                }
-            }
+            self.child.image = data!
+            self.child.show.toggle()
         }
     }
 }
-

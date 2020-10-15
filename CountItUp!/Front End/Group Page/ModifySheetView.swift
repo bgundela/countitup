@@ -21,7 +21,7 @@ struct ModifySheetView: View {
 
     @State var color = "Default"
 
-    @State var profileImage = UIImage()
+    @State var profileImage: Data = .init(count: 0)
     
     @Binding var indexSet: Int
     
@@ -48,8 +48,8 @@ struct ModifySheetView: View {
             Button(action: {
                 self.showImagePicker = true
             }) {
-                if profileImage != UIImage() {
-                    Image(uiImage: profileImage)
+                if profileImage.count != 0 {
+                    Image(uiImage: UIImage(data: profileImage)!)
                         .resizable()
                         .frame(width: 150, height: 150)
                         .cornerRadius(50)
@@ -130,6 +130,9 @@ struct ModifySheetView: View {
             }
 
             self.color = retrievedColor as! String
+        }
+        .sheet(isPresented: $showImagePicker) {
+            ImagePicker(show: self.$showImagePicker, image: self.$profileImage)
         }
     }
     
