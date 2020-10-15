@@ -86,7 +86,7 @@ struct HistoryView: View {
                             
                             Spacer()
                             
-                            Image("profile")
+                            Image(uiImage: UIImage(data: self.people[indexSet].image)!)
                                 .renderingMode(.original)
                                 .resizable()
                                 .frame(width: 150, height: 150)

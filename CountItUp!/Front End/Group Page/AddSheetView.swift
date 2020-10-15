@@ -20,7 +20,7 @@ struct AddSheetView: View {
     
     @State var color = "Default"
     
-    @State var profileImage: UIImage = UIImage()
+    @State var profileImage: Data = .init(count: 0)
     
     @State var points = 0
     
@@ -48,8 +48,8 @@ struct AddSheetView: View {
             Button(action: {
                 self.showImagePicker = true
             }) {
-                if profileImage != UIImage() {
-                    Image(uiImage: profileImage)
+                if profileImage.count != 0 {
+                    Image(uiImage: UIImage(data: profileImage)!)
                         .resizable()
                         .frame(width: 150, height: 150)
                         .cornerRadius(50)
@@ -94,11 +94,11 @@ struct AddSheetView: View {
             Button(action: {
                 guard let convertedPoints = Int(pointsBinding) else { return }
                 
-                if name != "" && profileImage != UIImage() {
+                if name != "" && profileImage.count != 0 {
                     let newPerson = Person(context: self.moc)
                     newPerson.name = name
                     newPerson.points = convertedPoints
-                    newPerson.image = "profile"
+                    newPerson.image = self.profileImage
                     newPerson.history = "\(newPerson.name) just got created."
                     
                     try! self.moc.save()
@@ -118,7 +118,7 @@ struct AddSheetView: View {
             Spacer()
         }
         .sheet(isPresented: $showImagePicker) {
-            ImagePicker(image: self.$profileImage, show: self.$showImagePicker)
+            ImagePicker(show: self.$showImagePicker, image: self.$profileImage)
         }
         .onAppear {
             guard let retrievedColor = UserDefaults.standard.value(forKey: "color") else {
