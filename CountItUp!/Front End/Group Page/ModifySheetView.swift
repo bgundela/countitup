@@ -25,6 +25,12 @@ struct ModifySheetView: View {
     
     @Binding var indexSet: Int
     
+    @State var title = ""
+    
+    @State var msg = ""
+    
+    @State var presentAlert = false
+    
     @Environment(\.managedObjectContext) var moc
     @FetchRequest(fetchRequest: Person.getAllPeople()) var people: FetchedResults<Person>
 
@@ -40,6 +46,14 @@ struct ModifySheetView: View {
                 }
 
                 Spacer()
+                
+                Button(action: {
+                    self.presentationMode.wrappedValue.dismiss()
+                }) {
+                    Text("Done")
+                        .fontWeight(.black)
+                        .foregroundColor(Color("\(color)"))
+                }
             }
             .padding()
 
@@ -48,20 +62,45 @@ struct ModifySheetView: View {
             Button(action: {
                 self.showImagePicker = true
             }) {
-                if profileImage.count != 0 {
-                    Image(uiImage: UIImage(data: profileImage)!)
-                        .resizable()
-                        .frame(width: 150, height: 150)
-                        .cornerRadius(50)
+                if self.person.image != nil {
+                    if self.person.image!.count != 0 {
+                        if profileImage.count != 0 {
+                            Image(uiImage: UIImage(data: profileImage)!)
+                                .resizable()
+                                .frame(width: 150, height: 150)
+                                .cornerRadius(50)
 
+                        } else {
+                            Image(uiImage: UIImage(data: self.person.image!)!)
+                                .resizable()
+                                .frame(width: 150, height: 150)
+                                .cornerRadius(50)
+                        }
+                    } else {
+                        Image(systemName: "camera")
+                            .font(.title)
+                            .padding()
+                            .foregroundColor(Color("\(color)"))
+                            .frame(width: 150, height: 150)
+                            .background(Color("\(color)").opacity(0.4))
+                            .cornerRadius(50)
+                    }
                 } else {
-                    Image(systemName: "camera")
-                        .font(.title)
-                        .padding()
-                        .foregroundColor(Color("\(color)"))
-                        .frame(width: 150, height: 150)
-                        .background(Color("\(color)").opacity(0.4))
-                        .cornerRadius(50)
+                    if profileImage.count != 0 {
+                        Image(uiImage: UIImage(data: profileImage)!)
+                            .resizable()
+                            .frame(width: 150, height: 150)
+                            .cornerRadius(50)
+
+                    } else {
+                        Image(systemName: "camera")
+                            .font(.title)
+                            .padding()
+                            .foregroundColor(Color("\(color)"))
+                            .frame(width: 150, height: 150)
+                            .background(Color("\(color)").opacity(0.4))
+                            .cornerRadius(50)
+                    }
                 }
             }
 
@@ -93,23 +132,55 @@ struct ModifySheetView: View {
             Button(action: {
                 guard let convertedPoints = Int(newPoints) else { return }
                 
-                if newName != person.name && newName != "" {
+                var check = true
+                
+                for person in self.people {
+                    if person.name == self.newName {
+                        check = false
+                    }
+                }
+                
+                if newName != person.name && newName != "" && check {
                     DispatchQueue.main.async {
                         self.people[indexSet].history = "\(person.name)'s name was changed to \(newName)"
                         
                         self.updateValue(at: self.indexSet, update: "name", to: self.newName)
                     }
-                }
-                
-                if convertedPoints != person.points {
+                    
+                    self.title = "Success"
+                    self.msg = "The name has been successfully updated."
+                    self.presentAlert.toggle()
+                } else if convertedPoints != person.points {
                     DispatchQueue.main.async {
                         self.updateValue(at: self.indexSet, update: "points", to: convertedPoints)
                     }
                     
                     self.people[indexSet].history = "\(self.people[indexSet].name)'s points were changed to \(self.people[indexSet].points)"
+                    
+                    self.title = "Success"
+                    self.msg = "The points has been successfully updated."
+                    self.presentAlert.toggle()
+                } else if profileImage != person.image && profileImage.count != 0 {
+                    DispatchQueue.main.async {
+                        self.people[indexSet].image = profileImage
+                        
+                        do {
+                            try self.moc.save()
+                        } catch {
+                            self.title = "Error"
+                            self.msg = "An error has occured while updating \(self.people[indexSet].name). The action may or may not have worked. If not, please try again later. If this error persists please contact 'countitup@gmail.com'."
+                            self.presentAlert.toggle()
+                        }
+                    }
+                    
+                    self.title = "Success"
+                    self.msg = "The image has been successfully updated."
+                    self.presentAlert.toggle()
+                } else if check != true {
+                    self.title = "Message"
+                    self.msg = "You already have a member named \(self.newName). Please enter a different name."
+                    self.presentAlert.toggle()
                 }
-                
-                self.presentationMode.wrappedValue.dismiss()
                 
             }) {
                 Text("Modify")
@@ -130,9 +201,16 @@ struct ModifySheetView: View {
             }
 
             self.color = retrievedColor as! String
+            
+            self.newName = self.person.name
+            
+            self.newPoints = "\(self.person.points)"
         }
         .sheet(isPresented: $showImagePicker) {
             ImagePicker(show: self.$showImagePicker, image: self.$profileImage)
+        }
+        .alert(isPresented: self.$presentAlert) {
+            Alert(title: Text("\(self.title)"), message: Text("\(self.msg)"), dismissButton: .default(Text("Ok")))
         }
     }
     
@@ -140,6 +218,12 @@ struct ModifySheetView: View {
         let updateItem = self.people[indexSet]
         updateItem.setValue(value, forKey: key)
         
-        try! self.moc.save()
+        do {
+            try self.moc.save()
+        } catch {
+            self.title = "Error"
+            self.msg = "An error has occured while updating \(self.people[indexSet].name). The action may or may not have worked. If not, please try again later. If this error persists please contact 'countitup@gmail.com'."
+            self.presentAlert.toggle()
+        }
     }
 }

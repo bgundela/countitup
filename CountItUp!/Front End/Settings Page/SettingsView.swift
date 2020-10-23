@@ -16,10 +16,17 @@ struct SettingsView: View {
     @State var increment = 0
     @State var increments = [1, 2, 3, 4, 5, 10, 20, 50, 100, 500, 1000]
     
-    @State var resetOption = 0
-    @State var resetOptions = ["No Reset", "Reset after a day", "Reset after a week", "Reset after a month", "Reset after a quarter of a year", "Reset after half a year", "Reset after a year"]
+    @State var resetIt = false
     
     @State var color = "Default"
+    
+    @State var resetMonth = 0
+    
+    @State var title = ""
+    
+    @State var msg = ""
+    
+    @State var presentAlert = false
     
     var body: some View {
         NavigationView {
@@ -51,11 +58,19 @@ struct SettingsView: View {
                         )
                     }
                     
+                    NavigationLink(destination: UserManual(color: self.$color)) {
+                        Text("User Manual")
+                    }
+                    .padding(25)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 16)
+                            .stroke(Color("\(color)"), lineWidth: 1)
+                    )
+                    
+                    
                     Section {
-                        Picker(selection: self.$resetOption, label: Text("Reset Options")) {
-                            ForEach(0..<self.resetOptions.count) {
-                                Text("\(self.resetOptions[$0])").tag($0)
-                            }
+                        Toggle(isOn: $resetIt) {
+                            Text("Reset after Each Month: ")
                         }
                         .padding(25)
                         .overlay(
@@ -232,8 +247,9 @@ struct SettingsView: View {
                 
                 Button(action: {
                     UserDefaults.standard.setValue(increment, forKey: "increment")
-                    UserDefaults.standard.setValue(resetOption, forKey: "reset")
+                    UserDefaults.standard.setValue(resetIt, forKey: "resetIt")
                     UserDefaults.standard.setValue(color, forKey: "color")
+                    self.resetMonth = self.calculateResetMonth()
                     
                 }) {
                     Text("Save")
@@ -260,7 +276,35 @@ struct SettingsView: View {
             }
             
             self.color = retreivedColor as! String
+            
+            guard let retreivedReset = UserDefaults.standard.value(forKey: "resetIt") else {
+                return
+            }
+            
+            self.resetIt = retreivedReset as! Bool
+            
+            guard let retreivedResetMonth = UserDefaults.standard.value(forKey: "getToMonth") else {
+                return
+            }
+            
+            self.resetMonth = retreivedResetMonth as! Int
         }
+        .alert(isPresented: self.$presentAlert) {
+            Alert(title: Text("\(self.title)"), message: Text("\(self.msg)"), dismissButton: .default(Text("Ok")))
+        }
+    }
+    
+    func calculateResetMonth() -> Int {
+        let calendar = Calendar.current
+        let date = Date()
+        
+        let monthInt = calendar.component(.month, from: date)
+        
+        let getToMonth = monthInt + 1
+        
+        UserDefaults.standard.setValue(getToMonth, forKey: "getToMonth")
+        
+        return getToMonth
     }
 }
 

@@ -12,7 +12,7 @@ import CoreData
 class Person: NSManagedObject, Identifiable {
     @NSManaged public var name: String
     @NSManaged public var points: Int
-    @NSManaged public var image: Data
+    @NSManaged public var image: Data?
     @NSManaged public var history: String
 }
 

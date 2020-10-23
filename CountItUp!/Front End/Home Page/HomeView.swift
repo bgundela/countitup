@@ -23,6 +23,20 @@ struct HomeView: View {
     
     @State var increments = [1, 2, 3, 4, 5, 10, 20, 50, 100, 500, 1000]
     
+    @State var resetIt = false
+    
+    @State var resetMonth = 0
+    
+    @State var title = ""
+    
+    @State var msg = ""
+    
+    @State var presentAlert = false
+    
+    @State var checkLeft = false
+    
+    @State var checkRight = false
+    
     var body: some View {
         VStack {
             ZStack(alignment: .bottomLeading) {
@@ -58,12 +72,15 @@ struct HomeView: View {
                 Button(action: {
                     if indexSet > 0 {
                         self.indexSet -= 1
+                        checkLeft = false
+                    } else {
+                        checkLeft = true
                     }
                 }) {
                     Image(systemName: "chevron.left")
                         .resizable()
                         .frame(width: 37, height: 45)
-                        .foregroundColor(Color("\(color)"))
+                        .foregroundColor(self.checkLeft ? Color("\(color)").opacity(0.5) : Color("\(color)"))
                         .padding()
                 }
                 
@@ -72,12 +89,15 @@ struct HomeView: View {
                 Button(action: {
                     if indexSet < self.people.count - 1 {
                         self.indexSet += 1
+                        checkRight = false
+                    } else {
+                        checkRight = true
                     }
                 }) {
                     Image(systemName: "chevron.right")
                         .resizable()
                         .frame(width: 37, height: 45)
-                        .foregroundColor(Color("\(color)"))
+                        .foregroundColor(self.checkRight ? Color("\(color)").opacity(0.5) : Color("\(color)"))
                         .padding()
                 }
             }
@@ -101,7 +121,14 @@ struct HomeView: View {
                             
                             self.people[indexSet].history = "\(self.people[indexSet].name)'s points were changed to \(self.people[indexSet].points)"
                             
-                            try! self.moc.save()
+                            do {
+                                try self.moc.save()
+                            } catch {
+                                self.title = "Error"
+                                self.msg = "An error has occured while subtracting \(self.people[indexSet].name)'s points. Please try again later. If this error persists please contact 'countitup@gmail.com'."
+                                self.presentAlert.toggle()
+                            }
+                            
                         }) {
                             Text("-")
                                 .font(.system(size: 75))
@@ -112,11 +139,29 @@ struct HomeView: View {
                         
                         Spacer()
                         
-                        Image(uiImage: UIImage(data: self.people[indexSet].image)!)
-                            .renderingMode(.original)
-                            .resizable()
-                            .frame(width: 150, height: 150)
-                            .cornerRadius(75)
+                        if self.people[indexSet].image != nil {
+                            if self.people[indexSet].image!.count != 0 {
+                                Image(uiImage: UIImage(data: self.people[indexSet].image!)!)
+                                    .renderingMode(.original)
+                                    .resizable()
+                                    .frame(width: 150, height: 150)
+                                    .cornerRadius(75)
+                            } else {
+                                Image(systemName: "person.circle.fill")
+                                    .renderingMode(.original)
+                                    .resizable()
+                                    .frame(width: 150, height: 150)
+                                    .cornerRadius(75)
+                                    .foregroundColor(.secondary)
+                            }
+                        } else {
+                            Image(systemName: "person.circle.fill")
+                                .renderingMode(.original)
+                                .resizable()
+                                .frame(width: 150, height: 150)
+                                .cornerRadius(75)
+                                .foregroundColor(.secondary)
+                        }
                         
                         Spacer()
                         
@@ -125,7 +170,14 @@ struct HomeView: View {
                             
                             self.people[indexSet].history = "\(self.people[indexSet].name)'s points were changed to \(self.people[indexSet].points)"
                             
-                            try! self.moc.save()
+                            do {
+                                try self.moc.save()
+                            } catch {
+                                self.title = "Error"
+                                self.msg = "An error has occured while adding \(self.people[indexSet].name)'s points. Please try again later. If this error persists please contact 'countitup@gmail.com'."
+                                self.presentAlert.toggle()
+                            }
+                            
                             
                         }) {
                             Text("+")
@@ -167,6 +219,27 @@ struct HomeView: View {
             }
 
             self.color = retrievedColor as! String
+            
+            guard let retrievedReset = UserDefaults.standard.value(forKey: "resetIt") else {
+                return
+            }
+            
+            self.resetIt = retrievedReset as! Bool
+            
+            guard let retreivedResetMonth = UserDefaults.standard.value(forKey: "getToMonth") else {
+                return
+            }
+            
+            self.resetMonth = retreivedResetMonth as! Int
+            
+            print("Initialized")
+            
+            if self.resetIt == true {
+                self.reset()
+            }
+        }
+        .alert(isPresented: self.$presentAlert) {
+            Alert(title: Text("\(self.title)"), message: Text("\(self.msg)"), dismissButton: .default(Text("Ok")))
         }
     }
     
@@ -182,6 +255,53 @@ struct HomeView: View {
         let formatter = DateFormatter()
         formatter.dateStyle = .short
         return formatter.string(from: datenow)
+    }
+    
+    func reset() {
+        if Calendar.current.component(.month, from: Date()) == self.resetMonth {
+            for person in self.people {
+                person.points = 0
+                try! self.moc.save()
+            }
+            
+            self.resetMonth += 1
+            
+            UserDefaults.standard.setValue(self.resetMonth, forKey: "getToMonth")
+            
+            let monthStr = Calendar.current.monthSymbols[self.resetMonth-1]
+            
+            var summaryString = "In \(monthStr), "
+            
+            for person in self.people {
+                summaryString.append("\(person.name) had \(person.points) points. ")
+            }
+            
+            UserDefaults.standard.setValue(summaryString, forKey: "summary")
+        }
+//        let oneMonth = Calendar.current.date(byAdding: .second, value: 5, to: date)
+//        let run = true
+//
+//
+//        let currentMonth = Calendar.current.dateComponents([.second], from: date)
+//        let getToMonth = Calendar.current.dateComponents([.second], from: oneMonth ?? Date())
+//
+//        print("\(Calendar.current.dateComponents([.second], from: Date()))")
+//        print("\(getToMonth)")
+//
+//        while run {
+//            if Calendar.current.dateComponents([.second], from: Date()) == getToMonth {
+//                print("Here")
+//                write(date: date, currentMonth: currentMonth)
+//                break
+//            }
+//        }
+        
+        // Seconds in a Month: 2628000
+    }
+    
+    func write(date: Date, currentMonth: DateComponents) {
+        print("Here: \(date)")
+        print("Now: \(currentMonth)")
     }
 }
 
