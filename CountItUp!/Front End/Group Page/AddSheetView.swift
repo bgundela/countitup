@@ -24,6 +24,12 @@ struct AddSheetView: View {
     
     @State var points = 0
     
+    @State var title = ""
+    
+    @State var msg = ""
+    
+    @State var presentAlert = false
+    
     @Environment(\.managedObjectContext) var moc
     @FetchRequest(fetchRequest: Person.getAllPeople()) var people: FetchedResults<Person>
     
@@ -40,6 +46,14 @@ struct AddSheetView: View {
                 }
                 
                 Spacer()
+                
+                Button(action: {
+                    self.presentationMode.wrappedValue.dismiss()
+                }) {
+                    Text("Done")
+                        .fontWeight(.black)
+                        .foregroundColor(Color("\(color)"))
+                }
             }
             .padding()
             
@@ -94,17 +108,50 @@ struct AddSheetView: View {
             Button(action: {
                 guard let convertedPoints = Int(pointsBinding) else { return }
                 
-                if name != "" && profileImage.count != 0 {
+                var check = true
+                
+                for person in self.people {
+                    if person.name == self.name {
+                        check = false
+                    }
+                }
+                
+                if name != "" && check {
                     let newPerson = Person(context: self.moc)
                     newPerson.name = name
                     newPerson.points = convertedPoints
-                    newPerson.image = self.profileImage
+                    if profileImage.count != 0 {
+                        newPerson.image = self.profileImage
+                    }
                     newPerson.history = "\(newPerson.name) just got created."
                     
-                    try! self.moc.save()
+                    do {
+                        try self.moc.save()
+                    } catch {
+                        self.title = "Error"
+                        self.msg = "An error has occured while creating \(newPerson.name). Please try again later. If this error persists please contact 'countitup@gmail.com'."
+                        self.presentAlert.toggle()
+                    }
                     
-                    self.presentationMode.wrappedValue.dismiss()
+                    self.name = ""
+                    self.points = 0
+                    self.pointsBinding = "0"
+                    self.profileImage.count = 0
+                    
+                    self.title = "Success"
+                    self.msg = "A new member has been successfully added."
+                    self.presentAlert.toggle()
+                    
+                } else if name == "" {
+                    self.title = "Message"
+                    self.msg = "Please fill in all the fields. Name is required."
+                    self.presentAlert.toggle()
+                } else {
+                    self.title = "Message"
+                    self.msg = "You already have a member named \(self.name). Please enter a different name."
+                    self.presentAlert.toggle()
                 }
+                
             }) {
                 Text("Create")
                 .font(.title)
@@ -127,11 +174,8 @@ struct AddSheetView: View {
 
             self.color = retrievedColor as! String
         }
-    }
-}
-
-struct AddSheetView_Previews: PreviewProvider {
-    static var previews: some View {
-        AddSheetView()
+        .alert(isPresented: self.$presentAlert) {
+            Alert(title: Text("\(self.title)"), message: Text("\(self.msg)"), dismissButton: .default(Text("OK")))
+        }
     }
 }

@@ -19,11 +19,29 @@ struct PersonView: View {
                 .fontWeight(.black)
                 .foregroundColor(colorScheme == .dark ? .white : .black)
             
-            Image(uiImage: UIImage(data: person.image)!)
-                .renderingMode(.original)
-                .resizable()
-                .frame(width: 70, height: 70)
-                .cornerRadius(35)
+            if person.image != nil {
+                if person.image!.count != 0 {
+                    Image(uiImage: UIImage(data: person.image!)!)
+                        .renderingMode(.original)
+                        .resizable()
+                        .frame(width: 70, height: 70)
+                        .cornerRadius(35)
+                } else {
+                    Image(systemName: "person.circle.fill")
+                        .renderingMode(.original)
+                        .resizable()
+                        .frame(width: 150, height: 150)
+                        .cornerRadius(75)
+                        .foregroundColor(.secondary)
+                }
+            } else {
+                Image(systemName: "person.circle.fill")
+                    .renderingMode(.original)
+                    .resizable()
+                    .frame(width: 150, height: 150)
+                    .cornerRadius(75)
+                    .foregroundColor(.secondary)
+            }
             
             Text("\(self.person.points)")
                 .font(.headline)

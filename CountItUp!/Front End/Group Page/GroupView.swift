@@ -26,6 +26,18 @@ struct GroupView: View {
     
     @State var indexSet = 0
     
+    @State var title = ""
+    
+    @State var msg = ""
+    
+    @State var presentAlert = false
+    
+    @State var showActionSheet = false
+    
+    @State var checkLeft = false
+    
+    @State var checkRight = false
+    
     var body: some View {
         VStack {
             ZStack(alignment: .bottomLeading) {
@@ -70,12 +82,15 @@ struct GroupView: View {
                 Button(action: {
                     if indexSet > 0 {
                         self.indexSet -= 1
+                        checkLeft = false
+                    } else {
+                        checkLeft = true
                     }
                 }) {
                     Image(systemName: "chevron.left")
                         .resizable()
                         .frame(width: 37, height: 45)
-                        .foregroundColor(Color("\(color)"))
+                        .foregroundColor(self.checkLeft ? Color("\(color)").opacity(0.5) : Color("\(color)"))
                         .padding()
                 }
                 
@@ -84,12 +99,15 @@ struct GroupView: View {
                 Button(action: {
                     if indexSet < self.people.count - 1 {
                         self.indexSet += 1
+                        checkRight = false
+                    } else {
+                        checkRight = true
                     }
                 }) {
                     Image(systemName: "chevron.right")
                         .resizable()
                         .frame(width: 37, height: 45)
-                        .foregroundColor(Color("\(color)"))
+                        .foregroundColor(self.checkRight ? Color("\(color)").opacity(0.5) : Color("\(color)"))
                         .padding()
                 }
             }
@@ -108,11 +126,29 @@ struct GroupView: View {
                         
                         Spacer()
                         
-                        Image(uiImage: UIImage(data: self.people[indexSet].image)!)
-                            .renderingMode(.original)
-                            .resizable()
-                            .frame(width: 150, height: 150)
-                            .cornerRadius(75)
+                        if self.people[indexSet].image != nil {
+                            if self.people[indexSet].image!.count != 0 {
+                                Image(uiImage: UIImage(data: self.people[indexSet].image!)!)
+                                    .renderingMode(.original)
+                                    .resizable()
+                                    .frame(width: 150, height: 150)
+                                    .cornerRadius(75)
+                            } else {
+                                Image(systemName: "person.circle.fill")
+                                    .renderingMode(.original)
+                                    .resizable()
+                                    .frame(width: 150, height: 150)
+                                    .cornerRadius(75)
+                                    .foregroundColor(.secondary)
+                            }
+                        } else {
+                            Image(systemName: "person.circle.fill")
+                                .renderingMode(.original)
+                                .resizable()
+                                .frame(width: 150, height: 150)
+                                .cornerRadius(75)
+                                .foregroundColor(.secondary)
+                        }
                         
                         Spacer()
                     }
@@ -138,9 +174,7 @@ struct GroupView: View {
                         Spacer()
                         
                         Button(action: {
-                            DispatchQueue.main.async {
-                                self.deleteValue(at: IndexSet(integer: indexSet))
-                            }
+                            self.showActionSheet.toggle()
                         }) {
                             Image(systemName: "trash.fill")
                                 .font(.title)
@@ -162,7 +196,7 @@ struct GroupView: View {
         .sheet(isPresented: self.$isPresented) {
             if activeSheet == .create {
                 AddSheetView()
-            } else {
+            } else if activeSheet == .modify {
                 ModifySheetView(person: self.people[indexSet], indexSet: self.$indexSet)
             }
         }
@@ -173,6 +207,16 @@ struct GroupView: View {
 
             self.color = retrievedColor as! String
         }
+        .alert(isPresented: self.$presentAlert) {
+            Alert(title: Text("\(self.title)"), message: Text("\(self.msg)"), dismissButton: .default(Text("Ok")))
+        }
+        .actionSheet(isPresented: self.$showActionSheet) {
+            ActionSheet(title: Text("Delete"), message: Text("Are you sure you want to delete"), buttons: [.cancel(), .destructive(Text("Delete"), action: {
+                DispatchQueue.main.async {
+                    self.deleteValue(at: IndexSet(integer: indexSet))
+                }
+            })])
+        }
     }
     
     func deleteValue(at offsets: IndexSet) {
@@ -180,17 +224,16 @@ struct GroupView: View {
             let deleteItem = people[index]
             self.moc.delete(deleteItem)
             
+            self.indexSet = 0
             
-            
-            try! self.moc.save()
+            do {
+                try self.moc.save()
+            } catch {
+                self.title = "Error"
+                self.msg = "An error has occured while deleting \(self.people[indexSet].name). The action may or may not have worked. If not, please try again later. If this error persists please contact 'countitup@gmail.com'."
+                self.presentAlert.toggle()
+            }
         }
-    }
-    
-    func updateValue(at indexSet: Int, update key: String, to value: Any) {
-        let updateItem = self.people[indexSet]
-        updateItem.setValue(value, forKey: key)
-        
-        try! self.moc.save()
     }
 }
 

@@ -21,6 +21,22 @@ struct HistoryView: View {
     
     @State var indexSet = 0
     
+    @State var resetIt = false
+    
+    @State var summary = ""
+    
+    @State var show = false
+    
+    @State var title = ""
+    
+    @State var msg = ""
+    
+    @State var presentAlert = false
+    
+    @State var checkLeft = false
+    
+    @State var checkRight = false
+    
     var body: some View {
         VStack {
             ZStack(alignment: .bottomLeading) {
@@ -44,8 +60,15 @@ struct HistoryView: View {
                         for person in self.people {
                             person.history = "No History."
                         }
+                        
+                        do {
+                            try self.moc.save()
+                        } catch {
+                            self.title = "Error"
+                            self.msg = "An error has occured while deleting \(self.people[indexSet].name)'s history. The action may or may not have worked. If not, please try again later. If this error persists please contact 'countitup@gmail.com'."
+                            self.presentAlert.toggle()
+                        }
                     }
-                    
                 }) {
                     Text("Delete All History")
                     .font(.title)
@@ -75,34 +98,58 @@ struct HistoryView: View {
                             Button(action: {
                                 if indexSet > 0 {
                                     self.indexSet -= 1
+                                    checkLeft = false
+                                } else {
+                                    checkLeft = true
                                 }
                             }) {
                                 Image(systemName: "chevron.left")
                                     .resizable()
                                     .frame(width: 37, height: 45)
-                                    .foregroundColor(Color("\(color)"))
+                                    .foregroundColor(self.checkLeft ? Color("\(color)").opacity(0.5) : Color("\(color)"))
                                     .padding()
                             }
                             
                             Spacer()
                             
-                            Image(uiImage: UIImage(data: self.people[indexSet].image)!)
-                                .renderingMode(.original)
-                                .resizable()
-                                .frame(width: 150, height: 150)
-                                .cornerRadius(75)
+                            if self.people[indexSet].image != nil {
+                                if self.people[indexSet].image!.count != 0 {
+                                    Image(uiImage: UIImage(data: self.people[indexSet].image!)!)
+                                        .renderingMode(.original)
+                                        .resizable()
+                                        .frame(width: 150, height: 150)
+                                        .cornerRadius(75)
+                                } else {
+                                    Image(systemName: "person.circle.fill")
+                                        .renderingMode(.original)
+                                        .resizable()
+                                        .frame(width: 150, height: 150)
+                                        .cornerRadius(75)
+                                        .foregroundColor(.secondary)
+                                }
+                            } else {
+                                Image(systemName: "person.circle.fill")
+                                    .renderingMode(.original)
+                                    .resizable()
+                                    .frame(width: 150, height: 150)
+                                    .cornerRadius(75)
+                                    .foregroundColor(.secondary)
+                            }
                             
                             Spacer()
                             
                             Button(action: {
                                 if indexSet < self.people.count - 1 {
                                     self.indexSet += 1
+                                    checkRight = false
+                                } else {
+                                    checkRight = true
                                 }
                             }) {
                                 Image(systemName: "chevron.right")
                                     .resizable()
                                     .frame(width: 37, height: 45)
-                                    .foregroundColor(Color("\(color)"))
+                                    .foregroundColor(self.checkRight ? Color("\(color)").opacity(0.5) : Color("\(color)"))
                                     .padding()
                             }
                             
@@ -122,6 +169,15 @@ struct HistoryView: View {
                         .padding()
                         .clipShape(Capsule())
                         .border(Color("\(self.color)"))
+                        
+                        if self.resetIt == true {
+                            Button(action: {
+                                self.show.toggle()
+                            }) {
+                                Text("Show Monthly Summary")
+                            }
+                            .padding()
+                        }
                     }
                 }
                 
@@ -137,6 +193,24 @@ struct HistoryView: View {
             }
 
             self.color = retrievedColor as! String
+            
+            guard let retrievedSummary = UserDefaults.standard.value(forKey: "summary") else {
+                return
+            }
+            
+            self.summary = retrievedSummary as! String
+            
+            guard let retreivedReset = UserDefaults.standard.value(forKey: "resetIt") else {
+                return
+            }
+            
+            self.resetIt = retreivedReset as! Bool
+        }
+        .sheet(isPresented: self.$show) {
+            SummaryView(color: self.$color, summary: self.$summary)
+        }
+        .alert(isPresented: self.$presentAlert) {
+            Alert(title: Text("\(self.title)"), message: Text("\(self.msg)"), dismissButton: .default(Text("Ok")))
         }
     }
 }
