@@ -7,9 +7,13 @@
 
 import SwiftUI
 
-enum ActiveSheet {
+enum ActiveSheet: Identifiable {
     case create
     case modify
+    
+    var id: Int {
+        hashValue
+    }
 }
 
 struct GroupView: View {
@@ -18,9 +22,7 @@ struct GroupView: View {
     
     @Environment(\.colorScheme) var colorScheme
     
-    @State var isPresented = false
-    
-    @State var activeSheet: ActiveSheet = .create
+    @State var activeSheet: ActiveSheet?
     
     @State var color = "Default"
     
@@ -58,7 +60,6 @@ struct GroupView: View {
             Button(action: {
                 self.activeSheet = .create
                 
-                self.isPresented.toggle()
             }) {
                 Text("Add A Member")
                 .font(.title)
@@ -159,8 +160,6 @@ struct GroupView: View {
                         
                         Button(action: {
                             self.activeSheet = .modify
-                            
-                            self.isPresented.toggle()
                         }) {
                             Image(systemName: "square.and.pencil")
                                 .font(.title)
@@ -193,11 +192,12 @@ struct GroupView: View {
             
             Spacer()
         }
-        .sheet(isPresented: self.$isPresented) {
-            if activeSheet == .create {
+        .sheet(item: self.$activeSheet) { item in
+            switch item {
+            case .create:
                 AddSheetView()
-            } else if activeSheet == .modify {
-                ModifySheetView(person: self.people[indexSet], indexSet: self.$indexSet)
+            case .modify:
+                ModifySheetView(person: self.people[indexSet], indexSet: $indexSet)
             }
         }
         .onAppear {
