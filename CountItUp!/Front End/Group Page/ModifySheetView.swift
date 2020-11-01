@@ -142,26 +142,28 @@ struct ModifySheetView: View {
                 
                 if newName != person.name && newName != "" && check {
                     DispatchQueue.main.async {
-                        self.people[indexSet].history = "\(person.name)'s name was changed to \(newName)"
-                        
-                        self.updateValue(at: self.indexSet, update: "name", to: self.newName)
+                        self.updateValue(at: indexSet, update: "name", to: newName)
                     }
+                    
+                    self.people[indexSet].history = "\(person.name)'s name was changed to \(newName)."
                     
                     self.title = "Success"
                     self.msg = "The name has been successfully updated."
                     self.presentAlert.toggle()
-                } else if convertedPoints != person.points {
+                }
+                
+                if convertedPoints != person.points {
                     DispatchQueue.main.async {
                         self.updateValue(at: self.indexSet, update: "points", to: convertedPoints)
                     }
                     
                     self.people[indexSet].history = "\(self.people[indexSet].name)'s points were changed to \(self.people[indexSet].points)"
-                    
-                    self.title = "Success"
-                    self.msg = "The points has been successfully updated."
-                    self.presentAlert.toggle()
-                } else if profileImage != person.image && profileImage.count != 0 {
+                }
+                
+                if profileImage != person.image && profileImage.count != 0 {
                     DispatchQueue.main.async {
+                        self.people[indexSet].history = "\(person.name)'s image was changed."
+                        
                         self.people[indexSet].image = profileImage
                         
                         do {
@@ -176,11 +178,17 @@ struct ModifySheetView: View {
                     self.title = "Success"
                     self.msg = "The image has been successfully updated."
                     self.presentAlert.toggle()
-                } else if check != true {
+                }
+                
+                if check != true {
                     self.title = "Message"
                     self.msg = "You already have a member named \(self.newName). Please enter a different name."
                     self.presentAlert.toggle()
                 }
+                
+                self.title = "Success"
+                self.msg = "The profile has been successfully updated."
+                self.presentAlert.toggle()
                 
             }) {
                 Text("Modify")
@@ -225,5 +233,9 @@ struct ModifySheetView: View {
             self.msg = "An error has occured while updating \(self.people[indexSet].name). The action may or may not have worked. If not, please try again later. If this error persists please contact 'countitup@gmail.com'."
             self.presentAlert.toggle()
         }
+        
+        self.title = "Success"
+        self.msg = "The profile has been successfully updated."
+        self.presentAlert.toggle()
     }
 }

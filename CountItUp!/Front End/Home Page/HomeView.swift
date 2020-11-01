@@ -259,16 +259,7 @@ struct HomeView: View {
     
     func reset() {
         if Calendar.current.component(.month, from: Date()) == self.resetMonth {
-            for person in self.people {
-                person.points = 0
-                try! self.moc.save()
-            }
-            
-            self.resetMonth += 1
-            
-            UserDefaults.standard.setValue(self.resetMonth, forKey: "getToMonth")
-            
-            let monthStr = Calendar.current.monthSymbols[self.resetMonth-1]
+            let monthStr = Calendar.current.monthSymbols[self.resetMonth]
             
             var summaryString = "In \(monthStr), "
             
@@ -277,6 +268,15 @@ struct HomeView: View {
             }
             
             UserDefaults.standard.setValue(summaryString, forKey: "summary")
+            
+            for person in self.people {
+                person.points = 0
+                try! self.moc.save()
+            }
+            
+            self.resetMonth += 1
+            
+            UserDefaults.standard.setValue(self.resetMonth, forKey: "getToMonth")
         }
 //        let oneMonth = Calendar.current.date(byAdding: .second, value: 5, to: date)
 //        let run = true
