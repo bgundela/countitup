@@ -211,7 +211,7 @@ struct GroupView: View {
             Alert(title: Text("\(self.title)"), message: Text("\(self.msg)"), dismissButton: .default(Text("Ok")))
         }
         .actionSheet(isPresented: self.$showActionSheet) {
-            ActionSheet(title: Text("Delete"), message: Text("Are you sure you want to delete"), buttons: [.cancel(), .destructive(Text("Delete"), action: {
+            ActionSheet(title: Text("Delete"), message: Text("Are you sure you want to delete \(self.people[indexSet].name)?"), buttons: [.cancel(), .destructive(Text("Delete"), action: {
                 DispatchQueue.main.async {
                     self.deleteValue(at: IndexSet(integer: indexSet))
                 }

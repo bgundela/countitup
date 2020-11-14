@@ -119,7 +119,7 @@ struct HomeView: View {
                         Button(action: {
                             self.people[indexSet].points -= increment
                             
-                            self.people[indexSet].history = "\(self.people[indexSet].name)'s points were changed to \(self.people[indexSet].points)"
+                            self.people[indexSet].history = "\(self.getDate()) at \(self.getTime()): Points were changed to \(self.people[indexSet].points)"
                             
                             do {
                                 try self.moc.save()
@@ -168,7 +168,7 @@ struct HomeView: View {
                         Button(action: {
                             self.people[indexSet].points += increment
                             
-                            self.people[indexSet].history = "\(self.people[indexSet].name)'s points were changed to \(self.people[indexSet].points)"
+                            self.people[indexSet].history = "\(self.getDate()) at \(self.getTime()): Points were changed to \(self.people[indexSet].points)"
                             
                             do {
                                 try self.moc.save()
@@ -255,6 +255,14 @@ struct HomeView: View {
         let formatter = DateFormatter()
         formatter.dateStyle = .short
         return formatter.string(from: datenow)
+    }
+    
+    func getTime() -> String {
+        let datenow = Date()
+        let formatter = DateFormatter()
+        formatter.timeStyle = .short
+        return formatter.string(from: datenow)
+        
     }
     
     func reset() {

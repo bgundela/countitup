@@ -106,24 +106,26 @@ struct AddSheetView: View {
             Spacer()
             
             Button(action: {
-                guard let convertedPoints = Int(pointsBinding) else { return }
+                guard let convertedPoints = Int(pointsBinding) else {
+                    return
+                }
                 
                 var check = true
                 
                 for person in self.people {
-                    if person.name == self.name {
+                    if person.name.lowercased() == self.name.lowercased() {
                         check = false
                     }
                 }
                 
-                if name != "" && check {
+                if name != "" && check && convertedPoints <= 9999 {
                     let newPerson = Person(context: self.moc)
                     newPerson.name = name
                     newPerson.points = convertedPoints
                     if profileImage.count != 0 {
                         newPerson.image = self.profileImage
                     }
-                    newPerson.history = "\(newPerson.name) just got created."
+                    newPerson.history = "\(self.getDate()) at \(self.getTime()): Got created."
                     
                     do {
                         try self.moc.save()
@@ -135,7 +137,7 @@ struct AddSheetView: View {
                     
                     self.name = ""
                     self.points = 0
-                    self.pointsBinding = "0"
+                    self.pointsBinding = ""
                     self.profileImage.count = 0
                     
                     self.title = "Success"
@@ -146,9 +148,13 @@ struct AddSheetView: View {
                     self.title = "Message"
                     self.msg = "Please fill in all the fields. Name is required."
                     self.presentAlert.toggle()
-                } else {
+                } else if check == false {
                     self.title = "Message"
                     self.msg = "You already have a member named \(self.name). Please enter a different name."
+                    self.presentAlert.toggle()
+                } else {
+                    self.title = "Message"
+                    self.msg = "Your points are too high. Please enter a number under 9,999."
                     self.presentAlert.toggle()
                 }
                 
@@ -177,5 +183,20 @@ struct AddSheetView: View {
         .alert(isPresented: self.$presentAlert) {
             Alert(title: Text("\(self.title)"), message: Text("\(self.msg)"), dismissButton: .default(Text("OK")))
         }
+    }
+    
+    func getDate() -> String {
+        let datenow = Date()
+        let formatter = DateFormatter()
+        formatter.dateStyle = .short
+        return formatter.string(from: datenow)
+    }
+    
+    func getTime() -> String {
+        let datenow = Date()
+        let formatter = DateFormatter()
+        formatter.timeStyle = .short
+        return formatter.string(from: datenow)
+        
     }
 }

@@ -130,12 +130,14 @@ struct ModifySheetView: View {
             Spacer()
 
             Button(action: {
-                guard let convertedPoints = Int(newPoints) else { return }
+                guard let convertedPoints = Int(newPoints) else {
+                    return
+                }
                 
                 var check = true
                 
                 for person in self.people {
-                    if person.name == self.newName {
+                    if person.name.lowercased() == self.newName.lowercased() {
                         check = false
                     }
                 }
@@ -145,24 +147,24 @@ struct ModifySheetView: View {
                         self.updateValue(at: indexSet, update: "name", to: newName)
                     }
                     
-                    self.people[indexSet].history = "\(person.name)'s name was changed to \(newName)."
+                    self.people[indexSet].history = "\(self.getDate()) at \(self.getTime()): Name was changed to \(newName)."
                     
                     self.title = "Success"
                     self.msg = "The name has been successfully updated."
                     self.presentAlert.toggle()
                 }
                 
-                if convertedPoints != person.points {
+                if convertedPoints != person.points && convertedPoints < 9999 {
                     DispatchQueue.main.async {
                         self.updateValue(at: self.indexSet, update: "points", to: convertedPoints)
                     }
                     
-                    self.people[indexSet].history = "\(self.people[indexSet].name)'s points were changed to \(self.people[indexSet].points)"
+                    self.people[indexSet].history = "\(self.getDate()) at \(self.getTime()): Points were changed to \(self.people[indexSet].points)"
                 }
                 
                 if profileImage != person.image && profileImage.count != 0 {
                     DispatchQueue.main.async {
-                        self.people[indexSet].history = "\(person.name)'s image was changed."
+                        self.people[indexSet].history = "\(self.getDate()) at \(self.getTime()): Image was changed."
                         
                         self.people[indexSet].image = profileImage
                         
@@ -183,6 +185,12 @@ struct ModifySheetView: View {
                 if check != true {
                     self.title = "Message"
                     self.msg = "You already have a member named \(self.newName). Please enter a different name."
+                    self.presentAlert.toggle()
+                }
+                
+                if convertedPoints < 9999 {
+                    self.title = "Message"
+                    self.msg = "Your points are too high. Please enter a number under 9,999."
                     self.presentAlert.toggle()
                 }
                 
@@ -218,7 +226,7 @@ struct ModifySheetView: View {
             ImagePicker(show: self.$showImagePicker, image: self.$profileImage)
         }
         .alert(isPresented: self.$presentAlert) {
-            Alert(title: Text("\(self.title)"), message: Text("\(self.msg)"), dismissButton: .default(Text("Ok")))
+            Alert(title: Text("\(self.title)"), message: Text("\(self.msg)"), dismissButton: .default(Text("OK")))
         }
     }
     
@@ -237,5 +245,20 @@ struct ModifySheetView: View {
         self.title = "Success"
         self.msg = "The profile has been successfully updated."
         self.presentAlert.toggle()
+    }
+    
+    func getDate() -> String {
+        let datenow = Date()
+        let formatter = DateFormatter()
+        formatter.dateStyle = .short
+        return formatter.string(from: datenow)
+    }
+    
+    func getTime() -> String {
+        let datenow = Date()
+        let formatter = DateFormatter()
+        formatter.timeStyle = .short
+        return formatter.string(from: datenow)
+        
     }
 }

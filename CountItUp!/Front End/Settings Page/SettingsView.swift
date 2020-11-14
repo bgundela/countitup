@@ -16,6 +16,9 @@ struct SettingsView: View {
     @State var increment = 0
     @State var increments = [1, 2, 3, 4, 5, 10, 20, 50, 100, 500, 1000]
     
+    @Environment(\.managedObjectContext) var moc
+    @FetchRequest(fetchRequest: Person.getAllPeople()) var people: FetchedResults<Person>
+    
     @State var resetIt = false
     
     @State var color = "Default"
@@ -27,6 +30,10 @@ struct SettingsView: View {
     @State var msg = ""
     
     @State var presentAlert = false
+    
+    @State var summary = ""
+    
+    @State var show = false
     
     var body: some View {
         NavigationView {
@@ -240,6 +247,57 @@ struct SettingsView: View {
                             .stroke(Color("\(color)"), lineWidth: 1)
                     )
                     
+                    Section {
+                        if self.resetIt == true {
+                            Button(action: {
+                                self.show.toggle()
+                            }) {
+                                Text("Show Monthly Summary")
+                                    .padding()
+                                    .foregroundColor(Color("\(self.color)"))
+                            }
+                            .padding()
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 16)
+                                    .stroke(Color("\(color)"), lineWidth: 1)
+                            )
+                        }
+                    }
+                    
+                    Section {
+                        Button(action: {
+                            if self.people.isEmpty {
+                                print("Empty")
+                            } else {
+                                for person in self.people {
+                                    person.history = "No History."
+                                }
+                                
+                                do {
+                                    try self.moc.save()
+                                    
+                                    self.title = "Success"
+                                    self.msg = "Successfully deleted everybody's history."
+                                    self.presentAlert.toggle()
+                                    
+                                } catch {
+                                    self.title = "Error"
+                                    self.msg = "An error has occured while deleting everybody's history. The action may or may not have worked. If not, please try again later. If this error persists please contact 'countitup@gmail.com'."
+                                    self.presentAlert.toggle()
+                                }
+                            }
+                        }) {
+                            Text("Delete All History")
+                                .padding()
+                                .foregroundColor(Color("\(self.color)"))
+                        }
+                        .padding()
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 16)
+                                .stroke(Color("\(color)"), lineWidth: 1)
+                        )
+                    }
+                    
                 }
                 .padding()
                 
@@ -288,9 +346,18 @@ struct SettingsView: View {
             }
             
             self.resetMonth = retreivedResetMonth as! Int
+            
+            guard let retrievedSummary = UserDefaults.standard.value(forKey: "summary") else {
+                return
+            }
+            
+            self.summary = retrievedSummary as! String
         }
         .alert(isPresented: self.$presentAlert) {
-            Alert(title: Text("\(self.title)"), message: Text("\(self.msg)"), dismissButton: .default(Text("Ok")))
+            Alert(title: Text("\(self.title)"), message: Text("\(self.msg)"), dismissButton: .default(Text("OK")))
+        }
+        .sheet(isPresented: self.$show) {
+            SummaryView(color: self.$color, summary: self.$summary)
         }
     }
     
