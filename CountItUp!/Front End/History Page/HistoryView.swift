@@ -53,31 +53,7 @@ struct HistoryView: View {
             }
             
             VStack {
-                Button(action: {
-                    if self.people.isEmpty {
-                        print("Empty")
-                    } else {
-                        for person in self.people {
-                            person.history = "No History."
-                        }
-                        
-                        do {
-                            try self.moc.save()
-                        } catch {
-                            self.title = "Error"
-                            self.msg = "An error has occured while deleting \(self.people[indexSet].name)'s history. The action may or may not have worked. If not, please try again later. If this error persists please contact 'countitup@gmail.com'."
-                            self.presentAlert.toggle()
-                        }
-                    }
-                }) {
-                    Text("Delete All History")
-                    .font(.title)
-                    .padding()
-                    .foregroundColor(Color("\(color)"))
-                    .frame(width: UIScreen.main.bounds.width - 50, height: 50)
-                    .background(Color("\(color)").opacity(0.4))
-                    .cornerRadius(25)
-                }
+                
                 
                 Spacer()
                 
@@ -169,15 +145,6 @@ struct HistoryView: View {
                         .padding()
                         .clipShape(Capsule())
                         .border(Color("\(self.color)"))
-                        
-                        if self.resetIt == true {
-                            Button(action: {
-                                self.show.toggle()
-                            }) {
-                                Text("Show Monthly Summary")
-                            }
-                            .padding()
-                        }
                     }
                 }
                 
@@ -206,11 +173,8 @@ struct HistoryView: View {
             
             self.resetIt = retreivedReset as! Bool
         }
-        .sheet(isPresented: self.$show) {
-            SummaryView(color: self.$color, summary: self.$summary)
-        }
         .alert(isPresented: self.$presentAlert) {
-            Alert(title: Text("\(self.title)"), message: Text("\(self.msg)"), dismissButton: .default(Text("Ok")))
+            Alert(title: Text("\(self.title)"), message: Text("\(self.msg)"), dismissButton: .default(Text("OK")))
         }
     }
 }
