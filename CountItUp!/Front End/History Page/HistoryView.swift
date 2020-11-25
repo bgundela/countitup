@@ -63,7 +63,7 @@ struct HistoryView: View {
                     VStack {
                         
                         Text("\(self.people[indexSet].name): \(self.people[indexSet].points)")
-                            .font(.headline)
+                            .font(.title)
                             .fontWeight(.black)
                             .foregroundColor(colorScheme == .dark ? .white : .black)
                         

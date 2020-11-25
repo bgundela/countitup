@@ -270,14 +270,14 @@ struct SettingsView: View {
                                 print("Empty")
                             } else {
                                 for person in self.people {
-                                    person.history = "No History."
+                                    person.history = "No History"
                                 }
                                 
                                 do {
                                     try self.moc.save()
                                     
                                     self.title = "Success"
-                                    self.msg = "Successfully deleted everybody's history."
+                                    self.msg = "Successfully deleted all members' history."
                                     self.presentAlert.toggle()
                                     
                                 } catch {

@@ -71,7 +71,8 @@ struct GroupView: View {
             }
             
             HStack {
-                Text("My Current Group")
+                Text("Members")
+                    .font(.title)
                 
                 Spacer()
                 
@@ -94,8 +95,36 @@ struct GroupView: View {
                         .foregroundColor(self.checkLeft ? Color("\(color)").opacity(0.5) : Color("\(color)"))
                         .padding()
                 }
-                
-                Spacer()
+                VStack {
+                    Text("\(self.people[indexSet].name): \(self.people[indexSet].points)")
+                        .font(.title)
+                        .fontWeight(.black)
+                        .foregroundColor(colorScheme == .dark ? .white : .black)
+                    
+                    if self.people[indexSet].image != nil {
+                        if self.people[indexSet].image!.count != 0 {
+                            Image(uiImage: UIImage(data: self.people[indexSet].image!)!)
+                                .renderingMode(.original)
+                                .resizable()
+                                .frame(width: 150, height: 150)
+                                .cornerRadius(75)
+                        } else {
+                            Image(systemName: "person.circle.fill")
+                                .renderingMode(.original)
+                                .resizable()
+                                .frame(width: 150, height: 150)
+                                .cornerRadius(75)
+                                .foregroundColor(.secondary)
+                        }
+                    } else {
+                        Image(systemName: "person.circle.fill")
+                            .renderingMode(.original)
+                            .resizable()
+                            .frame(width: 150, height: 150)
+                            .cornerRadius(75)
+                            .foregroundColor(.secondary)
+                    }
+                }
                 
                 Button(action: {
                     if indexSet < self.people.count - 1 {
@@ -118,43 +147,6 @@ struct GroupView: View {
                 Text("There is nobody in the group.")
             } else {
                 VStack {
-                    Text("\(self.people[indexSet].name): \(self.people[indexSet].points)")
-                        .font(.headline)
-                        .fontWeight(.black)
-                        .foregroundColor(colorScheme == .dark ? .white : .black)
-                    
-                    HStack {
-                        
-                        Spacer()
-                        
-                        if self.people[indexSet].image != nil {
-                            if self.people[indexSet].image!.count != 0 {
-                                Image(uiImage: UIImage(data: self.people[indexSet].image!)!)
-                                    .renderingMode(.original)
-                                    .resizable()
-                                    .frame(width: 150, height: 150)
-                                    .cornerRadius(75)
-                            } else {
-                                Image(systemName: "person.circle.fill")
-                                    .renderingMode(.original)
-                                    .resizable()
-                                    .frame(width: 150, height: 150)
-                                    .cornerRadius(75)
-                                    .foregroundColor(.secondary)
-                            }
-                        } else {
-                            Image(systemName: "person.circle.fill")
-                                .renderingMode(.original)
-                                .resizable()
-                                .frame(width: 150, height: 150)
-                                .cornerRadius(75)
-                                .foregroundColor(.secondary)
-                        }
-                        
-                        Spacer()
-                    }
-                    .padding()
-                    
                     HStack {
                         Spacer()
                         
@@ -183,8 +175,6 @@ struct GroupView: View {
                                 .background(Color("\(color)").opacity(0.4))
                                 .cornerRadius(25)
                         }
-                        
-                        Spacer()
                     }
                 }
                 .padding()

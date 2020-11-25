@@ -125,7 +125,7 @@ struct AddSheetView: View {
                     if profileImage.count != 0 {
                         newPerson.image = self.profileImage
                     }
-                    newPerson.history = "\(self.getDate()) at \(self.getTime()): Got created."
+                    newPerson.history = "\(self.getDate()) \(self.getTime()): Created"
                     
                     do {
                         try self.moc.save()
