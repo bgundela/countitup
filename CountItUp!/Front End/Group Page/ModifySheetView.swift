@@ -147,7 +147,7 @@ struct ModifySheetView: View {
                         self.updateValue(at: indexSet, update: "name", to: newName)
                     }
                     
-                    self.people[indexSet].history = "\(self.getDate()) at \(self.getTime()): Name was changed to \(newName)."
+                    self.people[indexSet].history = "\(self.getDate()) \(self.getTime()): Name was changed to \(newName)."
                     
                     self.title = "Success"
                     self.msg = "The name has been successfully updated."
@@ -159,12 +159,12 @@ struct ModifySheetView: View {
                         self.updateValue(at: self.indexSet, update: "points", to: convertedPoints)
                     }
                     
-                    self.people[indexSet].history = "\(self.getDate()) at \(self.getTime()): Points were changed to \(self.people[indexSet].points)"
+                    self.people[indexSet].history = "\(self.getDate()) \(self.getTime()): Points were changed to \(self.people[indexSet].points)"
                 }
                 
                 if profileImage != person.image && profileImage.count != 0 {
                     DispatchQueue.main.async {
-                        self.people[indexSet].history = "\(self.getDate()) at \(self.getTime()): Image was changed."
+                        self.people[indexSet].history = "\(self.getDate()) \(self.getTime()): Image was changed."
                         
                         self.people[indexSet].image = profileImage
                         

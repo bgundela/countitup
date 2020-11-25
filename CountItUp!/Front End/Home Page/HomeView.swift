@@ -62,6 +62,7 @@ struct HomeView: View {
             
             HStack {
                 Text("Points Manager")
+                    .font(.title)
                 
                 Spacer()
                 
@@ -82,6 +83,39 @@ struct HomeView: View {
                         .frame(width: 37, height: 45)
                         .foregroundColor(self.checkLeft ? Color("\(color)").opacity(0.5) : Color("\(color)"))
                         .padding()
+                }
+                
+                Spacer()
+                
+                VStack {
+                    Text("\(self.people[indexSet].name)")
+                        .font(.largeTitle)
+                        .fontWeight(.black)
+                        .foregroundColor(colorScheme == .dark ? .white : .black)
+                    
+                    if self.people[indexSet].image != nil {
+                        if self.people[indexSet].image!.count != 0 {
+                            Image(uiImage: UIImage(data: self.people[indexSet].image!)!)
+                                .renderingMode(.original)
+                                .resizable()
+                                .frame(width: 150, height: 150)
+                                .cornerRadius(75)
+                        } else {
+                            Image(systemName: "person.circle.fill")
+                                .renderingMode(.original)
+                                .resizable()
+                                .frame(width: 150, height: 150)
+                                .cornerRadius(75)
+                                .foregroundColor(.secondary)
+                        }
+                    } else {
+                        Image(systemName: "person.circle.fill")
+                            .renderingMode(.original)
+                            .resizable()
+                            .frame(width: 150, height: 150)
+                            .cornerRadius(75)
+                            .foregroundColor(.secondary)
+                    }
                 }
                 
                 Spacer()
@@ -107,10 +141,7 @@ struct HomeView: View {
                 Text("There is nobody in the group.")
             } else {
                 VStack {
-                    Text("\(self.people[indexSet].name)")
-                        .font(.headline)
-                        .fontWeight(.black)
-                        .foregroundColor(colorScheme == .dark ? .white : .black)
+                    
                     
                     HStack {
                         
@@ -119,7 +150,7 @@ struct HomeView: View {
                         Button(action: {
                             self.people[indexSet].points -= increment
                             
-                            self.people[indexSet].history = "\(self.getDate()) at \(self.getTime()): Points were changed to \(self.people[indexSet].points)"
+                            self.people[indexSet].history = "\(self.getDate()) \(self.getTime()): Points were changed to \(self.people[indexSet].points)"
                             
                             do {
                                 try self.moc.save()
@@ -139,28 +170,12 @@ struct HomeView: View {
                         
                         Spacer()
                         
-                        if self.people[indexSet].image != nil {
-                            if self.people[indexSet].image!.count != 0 {
-                                Image(uiImage: UIImage(data: self.people[indexSet].image!)!)
-                                    .renderingMode(.original)
-                                    .resizable()
-                                    .frame(width: 150, height: 150)
-                                    .cornerRadius(75)
-                            } else {
-                                Image(systemName: "person.circle.fill")
-                                    .renderingMode(.original)
-                                    .resizable()
-                                    .frame(width: 150, height: 150)
-                                    .cornerRadius(75)
-                                    .foregroundColor(.secondary)
-                            }
-                        } else {
-                            Image(systemName: "person.circle.fill")
-                                .renderingMode(.original)
-                                .resizable()
-                                .frame(width: 150, height: 150)
-                                .cornerRadius(75)
-                                .foregroundColor(.secondary)
+                        HStack {
+                            Text("\(self.people[indexSet].points)")
+                                .fontWeight(.heavy)
+                                .font(.system(size: 35))
+                                .font(.headline)
+                                .foregroundColor(colorScheme == .dark ? .white : .black)
                         }
                         
                         Spacer()
@@ -168,7 +183,7 @@ struct HomeView: View {
                         Button(action: {
                             self.people[indexSet].points += increment
                             
-                            self.people[indexSet].history = "\(self.getDate()) at \(self.getTime()): Points were changed to \(self.people[indexSet].points)"
+                            self.people[indexSet].history = "\(self.getDate()) \(self.getTime()): Points were changed to \(self.people[indexSet].points)"
                             
                             do {
                                 try self.moc.save()
@@ -190,14 +205,6 @@ struct HomeView: View {
                         Spacer()
                     }
                     .padding()
-                    
-                    HStack {
-                        Text("\(self.people[indexSet].points)")
-                            .fontWeight(.heavy)
-                            .font(.system(size: 35))
-                            .font(.headline)
-                            .foregroundColor(colorScheme == .dark ? .white : .black)
-                    }
                     
                 }
                 .padding()
