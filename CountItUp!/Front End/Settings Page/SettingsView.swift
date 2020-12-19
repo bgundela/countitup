@@ -365,9 +365,14 @@ struct SettingsView: View {
         let calendar = Calendar.current
         let date = Date()
         
-        let monthInt = calendar.component(.month, from: date)
+        let monthNum = calendar.component(.month, from: date)
+        var getToMonth = 0
         
-        let getToMonth = monthInt + 1
+        if monthNum == 12 {
+            getToMonth = 1
+        } else {
+            getToMonth = monthNum + 1
+        }
         
         UserDefaults.standard.setValue(getToMonth, forKey: "getToMonth")
         

@@ -19,7 +19,7 @@ struct HomeView: View {
     
     @State var indexSet = 0
     
-    @State var increment = 1
+    @State var increment = 0
     
     @State var increments = [1, 2, 3, 4, 5, 10, 20, 50, 100, 500, 1000]
     
@@ -86,20 +86,31 @@ struct HomeView: View {
                 }
                 
                 Spacer()
+               
+                if self.people.isEmpty {
                 
-                VStack {
-                    Text("\(self.people[indexSet].name)")
-                        .font(.largeTitle)
-                        .fontWeight(.black)
-                        .foregroundColor(colorScheme == .dark ? .white : .black)
-                    
-                    if self.people[indexSet].image != nil {
-                        if self.people[indexSet].image!.count != 0 {
-                            Image(uiImage: UIImage(data: self.people[indexSet].image!)!)
-                                .renderingMode(.original)
-                                .resizable()
-                                .frame(width: 150, height: 150)
-                                .cornerRadius(75)
+                } else {
+                    VStack {
+                        Text("\(self.people[indexSet].name)")
+                            .font(.largeTitle)
+                            .fontWeight(.black)
+                            .foregroundColor(colorScheme == .dark ? .white : .black)
+                        
+                        if self.people[indexSet].image != nil {
+                            if self.people[indexSet].image!.count != 0 {
+                                Image(uiImage: UIImage(data: self.people[indexSet].image!)!)
+                                    .renderingMode(.original)
+                                    .resizable()
+                                    .frame(width: 150, height: 150)
+                                    .cornerRadius(75)
+                            } else {
+                                Image(systemName: "person.circle.fill")
+                                    .renderingMode(.original)
+                                    .resizable()
+                                    .frame(width: 150, height: 150)
+                                    .cornerRadius(75)
+                                    .foregroundColor(.secondary)
+                            }
                         } else {
                             Image(systemName: "person.circle.fill")
                                 .renderingMode(.original)
@@ -108,13 +119,6 @@ struct HomeView: View {
                                 .cornerRadius(75)
                                 .foregroundColor(.secondary)
                         }
-                    } else {
-                        Image(systemName: "person.circle.fill")
-                            .renderingMode(.original)
-                            .resizable()
-                            .frame(width: 150, height: 150)
-                            .cornerRadius(75)
-                            .foregroundColor(.secondary)
                     }
                 }
                 
@@ -150,7 +154,7 @@ struct HomeView: View {
                         Button(action: {
                             self.people[indexSet].points -= increment
                             
-                            self.people[indexSet].history = "\(self.getDate()) \(self.getTime()): Points were changed to \(self.people[indexSet].points)"
+                            self.people[indexSet].history = "\(getDate()) \(getTime()): Points were changed to \(self.people[indexSet].points)"
                             
                             do {
                                 try self.moc.save()
@@ -183,7 +187,7 @@ struct HomeView: View {
                         Button(action: {
                             self.people[indexSet].points += increment
                             
-                            self.people[indexSet].history = "\(self.getDate()) \(self.getTime()): Points were changed to \(self.people[indexSet].points)"
+                            self.people[indexSet].history = "\(getDate()) \(getTime()): Points were changed to \(self.people[indexSet].points)"
                             
                             do {
                                 try self.moc.save()
@@ -216,31 +220,32 @@ struct HomeView: View {
             guard let retrievedIncrement = UserDefaults.standard.value(forKey: "increment") else {
                 return
             }
-            
+
             let recievedIncrement = retrievedIncrement as! Int
-            
+
             self.increment = self.increments[recievedIncrement]
-            
+
             guard let retrievedColor = UserDefaults.standard.value(forKey: "color") else {
                 return
             }
 
             self.color = retrievedColor as! String
-            
+
             guard let retrievedReset = UserDefaults.standard.value(forKey: "resetIt") else {
                 return
             }
-            
+
             self.resetIt = retrievedReset as! Bool
-            
+
             guard let retreivedResetMonth = UserDefaults.standard.value(forKey: "getToMonth") else {
                 return
             }
-            
+
             self.resetMonth = retreivedResetMonth as! Int
-            
+
             print("Initialized")
-            
+            print(self.resetMonth)
+
             if self.resetIt == true {
                 self.reset()
             }
@@ -289,7 +294,13 @@ struct HomeView: View {
                 try! self.moc.save()
             }
             
-            self.resetMonth += 1
+            let monthNum = self.resetMonth
+            
+            if monthNum == 12 {
+                resetMonth = 1
+            } else {
+                resetMonth = monthNum + 1
+            }
             
             UserDefaults.standard.setValue(self.resetMonth, forKey: "getToMonth")
         }
@@ -319,6 +330,7 @@ struct HomeView: View {
         print("Now: \(currentMonth)")
     }
 }
+
 
 struct HomeView_Previews: PreviewProvider {
     static var previews: some View {
