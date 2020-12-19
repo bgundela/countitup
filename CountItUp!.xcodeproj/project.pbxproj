@@ -574,7 +574,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_ASSET_PATHS = "\"CountItUp!/Preview Content\"";
-				DEVELOPMENT_TEAM = CWVFW3678F;
+				DEVELOPMENT_TEAM = 25VHC5B9HM;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = "CountItUp!/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -582,7 +582,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.bhuvangundela.CountItUp-";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.sathishgundela.CountItUp-";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
@@ -596,7 +596,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_ASSET_PATHS = "\"CountItUp!/Preview Content\"";
-				DEVELOPMENT_TEAM = CWVFW3678F;
+				DEVELOPMENT_TEAM = 25VHC5B9HM;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = "CountItUp!/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -604,7 +604,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.bhuvangundela.CountItUp-";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.sathishgundela.CountItUp-";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;

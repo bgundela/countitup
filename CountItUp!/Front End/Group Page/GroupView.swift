@@ -95,19 +95,31 @@ struct GroupView: View {
                         .foregroundColor(self.checkLeft ? Color("\(color)").opacity(0.5) : Color("\(color)"))
                         .padding()
                 }
-                VStack {
-                    Text("\(self.people[indexSet].name): \(self.people[indexSet].points)")
-                        .font(.title)
-                        .fontWeight(.black)
-                        .foregroundColor(colorScheme == .dark ? .white : .black)
-                    
-                    if self.people[indexSet].image != nil {
-                        if self.people[indexSet].image!.count != 0 {
-                            Image(uiImage: UIImage(data: self.people[indexSet].image!)!)
-                                .renderingMode(.original)
-                                .resizable()
-                                .frame(width: 150, height: 150)
-                                .cornerRadius(75)
+                
+                if self.people.isEmpty {
+                
+                } else {
+                    VStack {
+                        Text("\(self.people[indexSet].name): \(self.people[indexSet].points)")
+                            .font(.title)
+                            .fontWeight(.black)
+                            .foregroundColor(colorScheme == .dark ? .white : .black)
+                        
+                        if self.people[indexSet].image != nil {
+                            if self.people[indexSet].image!.count != 0 {
+                                Image(uiImage: UIImage(data: self.people[indexSet].image!)!)
+                                    .renderingMode(.original)
+                                    .resizable()
+                                    .frame(width: 150, height: 150)
+                                    .cornerRadius(75)
+                            } else {
+                                Image(systemName: "person.circle.fill")
+                                    .renderingMode(.original)
+                                    .resizable()
+                                    .frame(width: 150, height: 150)
+                                    .cornerRadius(75)
+                                    .foregroundColor(.secondary)
+                            }
                         } else {
                             Image(systemName: "person.circle.fill")
                                 .renderingMode(.original)
@@ -116,13 +128,6 @@ struct GroupView: View {
                                 .cornerRadius(75)
                                 .foregroundColor(.secondary)
                         }
-                    } else {
-                        Image(systemName: "person.circle.fill")
-                            .renderingMode(.original)
-                            .resizable()
-                            .frame(width: 150, height: 150)
-                            .cornerRadius(75)
-                            .foregroundColor(.secondary)
                     }
                 }
                 
@@ -203,7 +208,7 @@ struct GroupView: View {
         .actionSheet(isPresented: self.$showActionSheet) {
             ActionSheet(title: Text("Delete"), message: Text("Are you sure you want to delete \(self.people[indexSet].name)?"), buttons: [.cancel(), .destructive(Text("Delete"), action: {
                 DispatchQueue.main.async {
-                    self.deleteValue(at: IndexSet(integer: indexSet))
+                    deleteValue(at: IndexSet(integer: indexSet))
                 }
             })])
         }
