@@ -307,7 +307,7 @@ struct SettingsView: View {
                     UserDefaults.standard.setValue(increment, forKey: "increment")
                     UserDefaults.standard.setValue(resetIt, forKey: "resetIt")
                     UserDefaults.standard.setValue(color, forKey: "color")
-                    self.resetMonth = self.calculateResetMonth()
+                    self.resetMonth = self.calculateResetMonth(calendar: Calendar.current)
                     
                 }) {
                     Text("Save")
@@ -361,8 +361,8 @@ struct SettingsView: View {
         }
     }
     
-    func calculateResetMonth() -> Int {
-        let calendar = Calendar.current
+    func calculateResetMonth(calendar: Calendar) -> Int {
+        let calendar = calendar
         let date = Date()
         
         let monthNum = calendar.component(.month, from: date)
