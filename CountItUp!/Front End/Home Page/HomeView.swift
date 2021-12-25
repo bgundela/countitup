@@ -277,8 +277,8 @@ struct HomeView: View {
         
     }
     
-    func reset() {
-        if Calendar.current.component(.month, from: Date()) == self.resetMonth {
+    func reset(resetMonth: Int) {
+        if Calendar.current.component(.month, from: Date()) == resetMonth {
             let monthStr = Calendar.current.monthSymbols[self.resetMonth]
             
             var summaryString = "In \(monthStr), "
@@ -297,9 +297,9 @@ struct HomeView: View {
             let monthNum = self.resetMonth
             
             if monthNum == 12 {
-                resetMonth = 1
+                self.resetMonth = 1
             } else {
-                resetMonth = monthNum + 1
+                self.resetMonth = monthNum + 1
             }
             
             UserDefaults.standard.setValue(self.resetMonth, forKey: "getToMonth")
